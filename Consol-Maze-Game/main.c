@@ -3,7 +3,7 @@
 #include <ncurses.h>
 #include <locale.h>
 #include <stdlib.h>
-
+#include <sys/time.h>
 
 #define SIZE 19
 //기본 좌표값 설정
@@ -26,12 +26,18 @@ void MoveMaze(int *row, int *col);
 int IsBlock(int i, int j);
 int IsFinish(int i, int j);
 
+//struct timeval start,end;
+//float res;
+void Complete ();
+
+
 int main(void)
 {
     setlocale(LC_ALL, "");
     initscr();
     curs_set(0);
 
+    int row = 2, col = 1; //시작위치 초기화 (3행2열)
     char level;
     GotoXY(XP, YP-3);
     printw("미로 찾기 게임\n");
@@ -44,7 +50,8 @@ int main(void)
 
     LoadMaze(level);
 
-    int row = 2, col = 1; //시작위치 초기화 (3행2열)
+    
+//    gettimeofday(&start, NULL); //시작시간받기
     
     while (1)
     {
@@ -56,6 +63,20 @@ int main(void)
     refresh();
     getch();
     endwin();
+}
+
+void Complete()
+{
+//    gettimeofday(&end, NULL);   //끝난시간 받기
+    
+//    res = end.tv_sec - start.tv_sec;    //시간계산하기
+    
+    GotoXY(XP , YP + SIZE + 1);
+    printw("Complete!\n");
+    GotoXY(XP, YP + SIZE + 2 );
+//    printw("경과시간 : %lf초", res);
+    refresh();
+    exit(0);
 }
 
 void MoveMaze(int *row, int *col)
@@ -74,7 +95,10 @@ void MoveMaze(int *row, int *col)
                 }
                 else if (IsFinish(*row-1, *col))
                 {
-                    exit(0);    //임시강제종료 (stlib.h)
+                    maze[*row][*col] = '0';
+                    maze[*row-1][*col] = 'x';
+                    PrintMazeGame();
+                    Complete();
                 }
                 break;
                 
@@ -87,7 +111,10 @@ void MoveMaze(int *row, int *col)
                             }
                             else if (IsFinish(*row + 1, *col))
                             {
-                                exit(0);
+                                maze[*row][*col] = '0';
+                                maze[*row + 1][*col] = 'x';
+                                PrintMazeGame();
+                                Complete();
                             }
                             break;
                 
@@ -100,7 +127,10 @@ void MoveMaze(int *row, int *col)
                             }
                             else if (IsFinish(*row, *col + 1))
                             {
-                                exit(0);
+                                maze[*row][*col] = '0';
+                                maze[*row-1][*col + 1] = 'x';
+                                PrintMazeGame();
+                                Complete();
                             }
                             break;
                 
@@ -113,7 +143,10 @@ void MoveMaze(int *row, int *col)
                             }
                             else if (IsFinish(*row, *col - 1))
                             {
-                                exit(0);
+                                maze[*row][*col] = '0';
+                                maze[*row-1][*col - 1] = 'x';
+                                PrintMazeGame();
+                                Complete();
                             }
                             break;
         }
@@ -151,7 +184,7 @@ void PrintMazeGame () //콘솔창에 미로 그리기
             else if (maze[i][j] == '0')
                 printw("□");
             else
-                printw("●");
+                printw("·");
         }
         refresh();
     }
